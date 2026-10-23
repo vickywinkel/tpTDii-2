@@ -86,7 +86,7 @@ char* strDuplicate(char* src) { //HAY QUE USAR FREE???
     char* i = src;
     char caracter = *i; 
 
-    while (caracter){
+    while (caracter == "\0"){
         cantCar ++;
         i++;
         caracter = *i;
@@ -98,7 +98,7 @@ char* strDuplicate(char* src) { //HAY QUE USAR FREE???
     i = src; //iterador para el arreglo viejo
     caracter = *i;
 
-    while(caracter){
+    while(caracter == "\0"){
         *j = caracter;
         j++;
 
@@ -115,7 +115,7 @@ int strCompare(char* s1, char* s2) { //PREGUTNAR TEMA MAYUSCULAS
     //       Ojo: es la convencion INVERSA a strcmp.
 
     int i = 0;
-    while (s1[i] != 0 && s2[i] != 0){
+    while (s1[i] != "\0" && s2[i] != "\0"){
         if (s1[i] < s2[i]){ 
             return 1;
         }
@@ -126,11 +126,11 @@ int strCompare(char* s1, char* s2) { //PREGUTNAR TEMA MAYUSCULAS
     }
 
     //caso si termino por que se termino s1, entocnes s2 es mas larga
-    if (s1[i] == 0 && s2[i] != 0){
+    if (s1[i] == "\0" && s2[i] != "\0"){
         return 1;
     }
     //caso si termino por que se termino s2, entocnes s1 es mas larga
-    if (s1[i] != 0 && s2[i] == 0){
+    if (s1[i] != "\0" && s2[i] == "\0"){
         return -1;
     }
 
@@ -140,7 +140,7 @@ int strCompare(char* s1, char* s2) { //PREGUTNAR TEMA MAYUSCULAS
 int len(char* s){ //creamos una fucncion len para contar la cantidad de caracteres.
     int res = 0;
     int i = 0;
-    while (s[i]) {
+    while (s[i] == "\0") {
         res ++;
         i++;
     }
@@ -156,7 +156,7 @@ char* strConcatenate(char* src1, char* src2) { //puede ser lo msismo que la guia
     char* j = res;
     char* i = src1;
     char caracter = *i;
-    while (caracter){ //recorremos el primer str 
+    while (caracter == "\0"){ //recorremos el primer str 
         *j = caracter;
         j++;
         i++;
@@ -166,7 +166,7 @@ char* strConcatenate(char* src1, char* src2) { //puede ser lo msismo que la guia
 
     i = src2;
     caracter = *i;
-    while (caracter){ //recorremos el segundo str
+    while (caracter == "\0"){ //recorremos el segundo str
         *j = caracter;
         j++;
         i++;
@@ -182,21 +182,88 @@ char* strConcatenate(char* src1, char* src2) { //puede ser lo msismo que la guia
 // ========= EJERCICIO 2: FUNCIONES A IMPLEMENTAR (EL TP) =========
 
 GameBoard* gameBoardNew() {
+
     // TODO: Reservar memoria para el GameBoard.
+    GameBoard* tablero = (GameBoard*)malloc(sizeof(GameBoard));
+    
+    //HAY QUE CHEQUEAR SI FALLO ESTE MALLOC?????????????????????????????????????????????????????????
+    
     // TODO: Usar un bucle para hacer malloc de las 20 filas (RowNode) y conectarlas.
+    struct RowNode* current = NULL; 
+    for (int i= GRID_ROWS-1; i>= 0; i--){ //voy recorriendo de atras para adelante
+        struct RowNode* nuevaRow = (RowNode*)malloc(sizeof(RowNode));
+        if (nuevaRow == NULL){
+            while(current != NULL){ 
+                struct RowNode* pre = current->next;
+                free(current);
+                current = pre;
+            }
+            board->first_row = NULL;
+
+            //TENEMOS QUE ELIMINAR EL TABLERO????????????????? free(tablero);??????????????????????????????????
+            return NULL; //HACE FALTA DEVOLVER??????????????????????????????????????????????????
+        } 
+        //ESTO DEBERIA ESTAR EN UN ELSE??? PORQUE YA NO EXISTE NUEVAROW ???????????????????????
+        for (int j = 0; j<GRID_COLS; j++){
+            (nuevaRow->cells)[j] = 0; 
+        }
+        nuevaRow -> next = current;
+        current = nuevaRow;
+    }
+    
     // TODO: El puntero first_row debe apuntar al primero de esos nodos.
+    tablero->first_row = current;
+
     // TODO: Inicializar queue_head, queue_tail y first_particle en NULL.
-    printf("Función gameBoardNew no implementada.\n");
-    return NULL;
+    tablero->queue_head = NULL;
+    tablero->queue_tail = NULL;
+    tablero->first_particle = NULL;
+    tablero->score = 0;
+    tablero->tick_timer = 0;
+
+    // current_piece???????????????????????????????????????????????????????????????????????????????
+    return tablero;
 }
 
-void gameBoardDelete(GameBoard* board) {
+void gameBoardDelete(GameBoard* board) { // QUE ONDA SI ESTA LAS COSAS YA EN NULL ??????????????????????????????????????????
     // TODO: Debe tolerar board == NULL.
+    if (board == NULL){
+        return; 
+    }
+
     // TODO: Recorrer y liberar todos los RowNode con free().
+    struct RowNode* current = board->first_row 
+    while(current->next != NULL){ 
+        struct RowNode* prox = current->next;
+        free(current);
+        current = prox;
+    }
+    free(current);
+    board->first_row = NULL;
+    
     // TODO: Recorrer y liberar todos los PieceQueueNode.
+    struct PieceQueueNode* curPiece = board->queue_head;
+    while (curPiece != board->queue_tail){
+        struct PieceQueueNode* prox = curPiece->next;
+        free(curPiece);
+        curPiece = curPiece->next;
+    }
+    free(curPiece);
+    board->queue_head = NULL;
+    board->queue_tail = NULL;
+
     // TODO: Recorrer y liberar todos los ParticleNode.
+    struct ParticleNode* curPar = board->first_particle; 
+    while(curPar->next != NULL){ 
+        struct ParticleNode* prox = curPar->next;
+        free(curPar);
+        curPar = prox;
+    }
+    free(curPar);
+    board->first_particle = NULL;
+
     // TODO: Finalmente, liberar la estructura GameBoard.
-    printf("Función gameBoardDelete no implementada.\n");
+    free(board); //ES SOLO ESTO???????????????????????????????????????????????????????????
 }
 
 void gameBoardAddParticle(GameBoard* board, float x, float y, int color) {
