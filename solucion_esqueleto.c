@@ -78,7 +78,7 @@ GameBoard* game_board = NULL;
 
 // ========= EJERCICIO 1: STRINGS (NO USAR string.h) =========
 
-char* strDuplicate(char* src) { //HAY QUE USAR FREE???
+char* strDuplicate(char* src) { 
     // TODO: Contar los caracteres de src, reservar con malloc (no olvidar el '\0'),
     //       copiar todo y devolver el puntero nuevo.
    
@@ -110,9 +110,27 @@ char* strDuplicate(char* src) { //HAY QUE USAR FREE???
     return res;
 }
 
-int strCompare(char* s1, char* s2) { //PREGUTNAR TEMA MAYUSCULAS
+void stringToMayuscula(char *s){ //usamos una funcion auxiliar para convertir las palabras a mayuscula de esta manera no tenemos errores de que a < A.
+    char caracter = *s;
+    while (caracter != "\0"){
+        if (caracter >= 97 && caracter <= 122){
+            *s = caracter - 32;
+        }
+        s++;
+        caracter = *s;
+    }
+}
+
+int strCompare(char* s1, char* s2) { 
     // TODO: Devolver 0 si son iguales, 1 si s1 < s2, -1 si s1 > s2.
     //       Ojo: es la convencion INVERSA a strcmp.
+
+    //Consideramos que una palabra es menor como un diccionario. 
+    //Comaparmos caracter por caracter, si son distintos, esto define el orden. En caso contrario, se pasa al siguiente. 
+    //Si todo los caracteres son iguales y una termina antes, esa palabra es la menor. 
+
+    stringToMayuscula(s1);
+    stringToMayuscula(s2);
 
     int i = 0;
     while (s1[i] != "\0" && s2[i] != "\0"){
@@ -147,7 +165,7 @@ int len(char* s){ //creamos una fucncion len para contar la cantidad de caracter
     return res;
 }
 
-char* strConcatenate(char* src1, char* src2) { //puede ser lo msismo que la guia???
+char* strConcatenate(char* src1, char* src2) { 
     // TODO: Reservar un string nuevo con src1 seguido de src2, y liberar src1 y src2.
     //       Precondicion: src1 y src2 vienen de malloc y son punteros distintos.
 
@@ -186,8 +204,6 @@ GameBoard* gameBoardNew() {
     // TODO: Reservar memoria para el GameBoard.
     GameBoard* tablero = (GameBoard*)malloc(sizeof(GameBoard));
     
-    //HAY QUE CHEQUEAR SI FALLO ESTE MALLOC?????????????????????????????????????????????????????????
-    
     // TODO: Usar un bucle para hacer malloc de las 20 filas (RowNode) y conectarlas.
     struct RowNode* current = NULL; 
     for (int i= GRID_ROWS-1; i>= 0; i--){ //voy recorriendo de atras para adelante
@@ -199,11 +215,10 @@ GameBoard* gameBoardNew() {
                 current = pre;
             }
             board->first_row = NULL;
-
-            //TENEMOS QUE ELIMINAR EL TABLERO????????????????? free(tablero);??????????????????????????????????
-            return NULL; //HACE FALTA DEVOLVER??????????????????????????????????????????????????
+            return NULL; //En el caso que tenemos el error este de las filas, deberiamos una vez de termianr de borrarrlas cortar la funcion y devolver nada?????????????
         } 
-        //ESTO DEBERIA ESTAR EN UN ELSE??? PORQUE YA NO EXISTE NUEVAROW ???????????????????????
+        // si tenemos el error ese del malloc que tenemos que borrar las filas, nos pasaria que esto no exisititia no? porque no tenemos que recorrer?
+        // deberia estar en un else ?????????????????????????? yo creo que si pero preguntar ??????????????????????????????????????????
         for (int j = 0; j<GRID_COLS; j++){
             (nuevaRow->cells)[j] = 0; 
         }
@@ -221,11 +236,11 @@ GameBoard* gameBoardNew() {
     tablero->score = 0;
     tablero->tick_timer = 0;
 
-    // current_piece???????????????????????????????????????????????????????????????????????????????
+    // como iniciamos en 0 a current_piece ?????????????????????????????????????????????????????
     return tablero;
 }
 
-void gameBoardDelete(GameBoard* board) { // QUE ONDA SI ESTA LAS COSAS YA EN NULL ??????????????????????????????????????????
+void gameBoardDelete(GameBoard* board) { 
     // TODO: Debe tolerar board == NULL.
     if (board == NULL){
         return; 
@@ -263,38 +278,122 @@ void gameBoardDelete(GameBoard* board) { // QUE ONDA SI ESTA LAS COSAS YA EN NUL
     board->first_particle = NULL;
 
     // TODO: Finalmente, liberar la estructura GameBoard.
-    free(board); //ES SOLO ESTO???????????????????????????????????????????????????????????
+    free(board); 
 }
 
 void gameBoardAddParticle(GameBoard* board, float x, float y, int color) {
     // TODO: Crear un ParticleNode con memoria dinámica.
+    ParticleNode* newParticle = (ParticleNode*) malloc (sizeof(ParticleNode));
     // TODO: Inicializar x, y, velocidades aleatorias y un life_timer.
+    newParticle->x = x;
+    newParticle->y = y;
+    newParticle->color = color;
+    newParticle->life_timer =  ???????????????
+    newParticle-> vel_x = ?????????????????
+    newParticle-> vel_y = ?????????????? //rand()%rango - stdlib.h
+
     // TODO: Agregarlo al principio de la lista enlazada simple de partículas.
-    printf("Función gameBoardAddParticle no implementada.\n");
+    newParticle->next = board->first_particle;
+    board->first_particle = newParticle;
+
 }
 
 int gameBoardCheckAndClearLines(GameBoard* board) {
     // TODO: Recorrer la lista de RowNode.
-    // TODO: Si un RowNode tiene todas sus celdas > 0, desenlazarlo y hacer free().
-    // TODO: Crear un nuevo RowNode vacío (lleno de ceros).
-    // TODO: Insertar el nuevo RowNode en la CABEZA del tablero (board->first_row).
-    // TODO: Por cada celda destruida, invocar a gameBoardAddParticle().
-    printf("Función gameBoardCheckAndClearLines no implementada.\n");
-    return 0;
+    RowNode* current = board->first_row;
+    RowNode* pre = NULL;
+    
+    int cantEliminadas = 0;
+    for (int i = 0; i< GRID_ROWS; i++){
+        int hay0 = 0;
+        // TODO: Si un RowNode tiene todas sus celdas > 0, desenlazarlo y hacer free().
+        for (int j = 0; j < GRID_COLS && !hay0; j++){
+            if ((current->cells)[j] == 0){
+                hay0 = 1; //encontre algo que vale 0
+            }
+        }
+        if(!hay0 && current == board->first_row){
+            board->first_row = current->next;
+            struct RowNode* borrar = current;
+            current = current->next;
+            // TODO: Por cada celda destruida, invocar a gameBoardAddParticle().
+            gameBoardAddParticle(board, );// HAY QUE PASARLE MAS COSAS? ELEGIMOS NOSOTOROS EL COLOR X E Y ???????????????????
+            free(borrar);
+            cantEliminadas ++;
+
+            // TODO: Crear un nuevo RowNode vacío (lleno de ceros).
+            struct RowNode* nuevaRow = (RowNode*)malloc(sizeof(RowNode));
+            for (int k = 0; j<GRID_COLS; k++){
+                (nuevaRow->cells)[k] = 0; 
+            }
+            // TODO: Insertar el nuevo RowNode en la CABEZA del tablero (board->first_row).
+            nuevaRow->next = board->first_row;
+            board->first_row = nuevaRow;
+        }    
+        if(!hay0 && current != board->first_row){
+            pre->next = current->next;
+            struct RowNode* borrar = current;
+            current = current->next;
+            gameBoardAddParticle(board, );// HAY QUE PASARLE MAS COSAS? ELEGIMOS NOSOTOROS EL COLOR X E Y ???????????????????
+            free(borrar);
+
+            cantEliminadas ++;
+
+            struct RowNode* nuevaRow = (RowNode*)malloc(sizeof(RowNode));
+            for (int k = 0; j<GRID_COLS; k++){
+                (nuevaRow->cells)[k] = 0; 
+            }
+            nuevaRow->next = board->first_row;
+            board->first_row = nuevaRow;
+        }
+        if (hay0){
+            pre = current;
+            current = current->next;
+        }
+    }
+    return cantEliminadas;
 }
 
 void gameBoardEnqueuePiece(GameBoard* board, int type) {
     // TODO: Crear un PieceQueueNode con el 'type'.
+    PieceQueueNode* newPiece = (PieceQueueNode*) malloc (sizeof(PieceQueueNode));
+    newPiece->type = type;
+    newPiece->next = NULL;
+
     // TODO: Insertarlo al final de la cola (queue_tail) y actualizar punteros.
-    printf("Función gameBoardEnqueuePiece no implementada.\n");
+    if (board->queue_head == NULL && board->queue_tail == NULL){
+        board->queue_head = newPiece;
+        board->queue_tail = newPiece;
+    }
+    else{
+        (board->queue_tail)->next = newPiece;
+        board->queue_tail = newPiece;
+    }
 }
 
 int gameBoardDequeuePiece(GameBoard* board, int* out_type) {
     // TODO: Si la cola está vacía, retornar 0.
-    // TODO: Extraer el primer nodo (queue_head).
+    if (board->queue_head == NULL && board->queue_tail == NULL){
+        return 0;
+    }
+    
     // TODO: Guardar el type en la variable out_type, liberar el nodo y actualizar el head.
-    printf("Función gameBoardDequeuePiece no implementada.\n");
-    return 0;
+    // TODO: Extraer el primer nodo (queue_head).
+    *out_type = (board->queue_head)->type;
+
+    if (board->queue_head == board->queue_tail){
+        free(board->queue_head);
+        board->queue_head = NULL;
+        board->queue_tail = NULL;
+    }
+
+    else {
+        PieceQueueNode* borrar = board->queue_head;
+        board->queue_head = borrar->next; 
+        free(borrar);
+    }
+
+    return 1; 
 }
 
 // ========= LOGICA DE DIBUJADO Y COLISIONES (NO MODIFICAR) =========
