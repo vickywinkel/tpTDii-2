@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 
 // ========= CONSTANTES DEL JUEGO =========
 #define SCREEN_WIDTH 500
@@ -86,7 +87,7 @@ char* strDuplicate(char* src) {
     char* i = src;
     char caracter = *i; 
 
-    while (caracter == "\0"){
+    while (caracter == '\0'){
         cantCar ++;
         i++;
         caracter = *i;
@@ -98,7 +99,7 @@ char* strDuplicate(char* src) {
     i = src; //iterador para el arreglo viejo
     caracter = *i;
 
-    while(caracter == "\0"){
+    while(caracter == '\0'){
         *j = caracter;
         j++;
 
@@ -110,17 +111,6 @@ char* strDuplicate(char* src) {
     return res;
 }
 
-void stringToMayuscula(char *s){ //usamos una funcion auxiliar para convertir las palabras a mayuscula de esta manera no tenemos errores de que a < A.
-    char caracter = *s;
-    while (caracter != "\0"){
-        if (caracter >= 97 && caracter <= 122){
-            *s = caracter - 32;
-        }
-        s++;
-        caracter = *s;
-    }
-}
-
 int strCompare(char* s1, char* s2) { 
     // TODO: Devolver 0 si son iguales, 1 si s1 < s2, -1 si s1 > s2.
     //       Ojo: es la convencion INVERSA a strcmp.
@@ -129,11 +119,8 @@ int strCompare(char* s1, char* s2) {
     //Comaparmos caracter por caracter, si son distintos, esto define el orden. En caso contrario, se pasa al siguiente. 
     //Si todo los caracteres son iguales y una termina antes, esa palabra es la menor. 
 
-    stringToMayuscula(s1);
-    stringToMayuscula(s2);
-
     int i = 0;
-    while (s1[i] != "\0" && s2[i] != "\0"){
+    while (s1[i] != '\0' && s2[i] != '\0'){
         if (s1[i] < s2[i]){ 
             return 1;
         }
@@ -144,11 +131,11 @@ int strCompare(char* s1, char* s2) {
     }
 
     //caso si termino por que se termino s1, entocnes s2 es mas larga
-    if (s1[i] == "\0" && s2[i] != "\0"){
+    if (s1[i] == '\0' && s2[i] != '\0'){
         return 1;
     }
     //caso si termino por que se termino s2, entocnes s1 es mas larga
-    if (s1[i] != "\0" && s2[i] == "\0"){
+    if (s1[i] != '\0' && s2[i] == '\0'){
         return -1;
     }
 
@@ -158,7 +145,7 @@ int strCompare(char* s1, char* s2) {
 int len(char* s){ //creamos una fucncion len para contar la cantidad de caracteres.
     int res = 0;
     int i = 0;
-    while (s[i] == "\0") {
+    while (s[i] == '\0') {
         res ++;
         i++;
     }
@@ -174,7 +161,7 @@ char* strConcatenate(char* src1, char* src2) {
     char* j = res;
     char* i = src1;
     char caracter = *i;
-    while (caracter == "\0"){ //recorremos el primer str 
+    while (caracter == '\0'){ //recorremos el primer str 
         *j = caracter;
         j++;
         i++;
@@ -184,7 +171,7 @@ char* strConcatenate(char* src1, char* src2) {
 
     i = src2;
     caracter = *i;
-    while (caracter == "\0"){ //recorremos el segundo str
+    while (caracter == '\0'){ //recorremos el segundo str
         *j = caracter;
         j++;
         i++;
@@ -214,7 +201,7 @@ GameBoard* gameBoardNew() {
                 free(current);
                 current = pre;
             }
-            board->first_row = NULL;
+            tablero->first_row = NULL;
             return NULL; //En el caso que tenemos el error este de las filas, deberiamos una vez de termianr de borrarrlas cortar la funcion y devolver nada?????????????
         } 
         // si tenemos el error ese del malloc que tenemos que borrar las filas, nos pasaria que esto no exisititia no? porque no tenemos que recorrer?
@@ -247,7 +234,7 @@ void gameBoardDelete(GameBoard* board) {
     }
 
     // TODO: Recorrer y liberar todos los RowNode con free().
-    struct RowNode* current = board->first_row 
+    struct RowNode* current = board->first_row; 
     while(current->next != NULL){ 
         struct RowNode* prox = current->next;
         free(current);
@@ -261,7 +248,7 @@ void gameBoardDelete(GameBoard* board) {
     while (curPiece != board->queue_tail){
         struct PieceQueueNode* prox = curPiece->next;
         free(curPiece);
-        curPiece = curPiece->next;
+        curPiece = prox;
     }
     free(curPiece);
     board->queue_head = NULL;
@@ -269,12 +256,11 @@ void gameBoardDelete(GameBoard* board) {
 
     // TODO: Recorrer y liberar todos los ParticleNode.
     struct ParticleNode* curPar = board->first_particle; 
-    while(curPar->next != NULL){ 
+    while(curPar != NULL){ 
         struct ParticleNode* prox = curPar->next;
         free(curPar);
         curPar = prox;
     }
-    free(curPar);
     board->first_particle = NULL;
 
     // TODO: Finalmente, liberar la estructura GameBoard.
@@ -287,10 +273,10 @@ void gameBoardAddParticle(GameBoard* board, float x, float y, int color) {
     // TODO: Inicializar x, y, velocidades aleatorias y un life_timer.
     newParticle->x = x;
     newParticle->y = y;
-    newParticle->color = color;
-    newParticle->life_timer =  ???????????????
-    newParticle-> vel_x = ?????????????????
-    newParticle-> vel_y = ?????????????? //rand()%rango - stdlib.h
+    newParticle->color = color; 
+    newParticle->life_timer =  20 + rand() % 20;
+    newParticle-> vel_x = (rand() % 100)/ 20.0f - 2.5f;
+    newParticle-> vel_y = (rand() % 50)/ 10.0f - 2.0f;
 
     // TODO: Agregarlo al principio de la lista enlazada simple de partículas.
     newParticle->next = board->first_particle;
@@ -317,13 +303,13 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
             struct RowNode* borrar = current;
             current = current->next;
             // TODO: Por cada celda destruida, invocar a gameBoardAddParticle().
-            gameBoardAddParticle(board, );// HAY QUE PASARLE MAS COSAS? ELEGIMOS NOSOTOROS EL COLOR X E Y ???????????????????
+            //gameBoardAddParticle(board, );// HAY QUE PASARLE MAS COSAS? ELEGIMOS NOSOTOROS EL COLOR X E Y ???????????????????
             free(borrar);
             cantEliminadas ++;
 
             // TODO: Crear un nuevo RowNode vacío (lleno de ceros).
             struct RowNode* nuevaRow = (RowNode*)malloc(sizeof(RowNode));
-            for (int k = 0; j<GRID_COLS; k++){
+            for (int k = 0; k<GRID_COLS; k++){
                 (nuevaRow->cells)[k] = 0; 
             }
             // TODO: Insertar el nuevo RowNode en la CABEZA del tablero (board->first_row).
@@ -334,13 +320,13 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
             pre->next = current->next;
             struct RowNode* borrar = current;
             current = current->next;
-            gameBoardAddParticle(board, );// HAY QUE PASARLE MAS COSAS? ELEGIMOS NOSOTOROS EL COLOR X E Y ???????????????????
+            //gameBoardAddParticle(board, );// HAY QUE PASARLE MAS COSAS? ELEGIMOS NOSOTOROS EL COLOR X E Y ???????????????????
             free(borrar);
 
             cantEliminadas ++;
 
             struct RowNode* nuevaRow = (RowNode*)malloc(sizeof(RowNode));
-            for (int k = 0; j<GRID_COLS; k++){
+            for (int k = 0; k<GRID_COLS; k++){
                 (nuevaRow->cells)[k] = 0; 
             }
             nuevaRow->next = board->first_row;
@@ -563,16 +549,51 @@ int inicializar() {
 void correrTests() {
     // TODO: Implementar los casos minimos del enunciado. Por ejemplo:
     //  - strDuplicate: "", "x", un string con distintos caracteres.
+    //assert (strDuplicate("") == );
+    //assert( strDuplicate("u") == );
+    //assert (strDuplicate ("hola pablo") == );
+
     //  - strCompare: "" vs "", "a" vs "a", y una desigualdad en ambos sentidos (s1/s2 y s2/s1).
+    assert(strCompare("", "") == 0);
+    assert(strCompare ("a","a") == 0);
+    assert(strCompare("ahora", "ayer") == 1);
+    assert(strCompare("ayer", "ahora") == -1);
+
     //  - strConcatenate: "" + "abc" y "hola " + "mundo". Los argumentos deben crearse con
     //    strDuplicate, porque strConcatenate los libera (no pasar literales).
+    // strDuplicate("", "abc") 
+    // strDuplicate("hola", "mundo")
+    
     //  - Cola: 5 push y 6 pop; el 6to debe devolver 0 y dejar queue_head y queue_tail en NULL.
     //    Verificar tambien que un push posterior funcione.
+    GameBoard* board = gameBoardNew();
+    gameBoardEnqueuePiece(board, 0);
+    gameBoardEnqueuePiece(board, 1);
+    gameBoardEnqueuePiece(board, 2);
+    gameBoardEnqueuePiece(board, 3);
+    gameBoardEnqueuePiece(board, 1);
+
+    int t;
+    assert(gameBoardDequeuePiece(board, &t) == 1);  
+    assert(t == 0);
+    assert(gameBoardDequeuePiece(board, &t) == 1); 
+    assert(t == 1);
+    assert(gameBoardDequeuePiece(board, &t) == 1); 
+    assert(t == 2);
+    assert(gameBoardDequeuePiece(board, &t) == 1); 
+    assert(t == 3);
+    assert(gameBoardDequeuePiece(board, &t) == 1); 
+    assert(t == 1);
+
+    assert(gameBoardDequeuePiece(board, &t) == 0);
+
+    gameBoardDelete(board);
+
     //  - Tablero: llenar la fila de indice 19 (la de abajo), llamar a
     //    gameBoardCheckAndClearLines y comprobar que first_row es la fila nueva vacia y que
     //    la lista sigue teniendo 20 filas.
     // Liberar toda la memoria pedida en los tests (strings y tableros).
-    printf("Tests no implementados.\n");
+    
 }
 
 // Compara contra "--test" sin depender de string.h ni del Ejercicio 1.
