@@ -116,7 +116,7 @@ int strCompare(char* s1, char* s2) {
     //       Ojo: es la convencion INVERSA a strcmp.
 
     //Consideramos que una palabra es menor como un diccionario. 
-    //Comaparmos caracter por caracter, si son distintos, esto define el orden. En caso contrario, se pasa al siguiente. 
+    //Comparamos caracter por caracter, si son distintos, esto define el orden. En caso contrario, se pasa al siguiente. 
     //Si todo los caracteres son iguales y una termina antes, esa palabra es la menor. 
 
     int i = 0;
@@ -130,11 +130,11 @@ int strCompare(char* s1, char* s2) {
         i++;
     }
 
-    //caso si termino por que se termino s1, entocnes s2 es mas larga
+    //caso si termino por que se termino s1, entonces s2 es mas larga
     if (s1[i] == '\0' && s2[i] != '\0'){
         return 1;
     }
-    //caso si termino por que se termino s2, entocnes s1 es mas larga
+    //caso si termino por que se termino s2, entonces s1 es mas larga
     if (s1[i] != '\0' && s2[i] == '\0'){
         return -1;
     }
@@ -142,7 +142,7 @@ int strCompare(char* s1, char* s2) {
     return 0;
 }
 
-int len(char* s){ //creamos una fucncion len para contar la cantidad de caracteres (sin incluir el '\0').
+int len(char* s){ //creamos una funcion len para contar la cantidad de caracteres (sin incluir el '\0').
     int res = 0;
     int i = 0;
     while (s[i] != '\0') {
@@ -195,7 +195,7 @@ GameBoard* gameBoardNew() {
     for (int i= GRID_ROWS-1; i>= 0; i--){ //voy recorriendo de atras para adelante
         struct RowNode* nuevaRow = (RowNode*)malloc(sizeof(RowNode));
         if (nuevaRow == NULL){ //nos fijamos si hubo espacio para crear una nueva fila
-            while(current != NULL){   
+            while(current != NULL){   //voy a querer eliminar las otras filas, asi no queda memoria perdida
                 struct RowNode* pre = current->next;  //agarro el siguiente
                 free(current); 
                 current = pre; //muevo mi current para seguir iterando
@@ -231,7 +231,7 @@ void gameBoardDelete(GameBoard* board) {
     } 
 
     // TODO: Recorrer y liberar todos los RowNode con free().
-    struct RowNode* current = board->first_row; //nos paramos en la prima fila.
+    struct RowNode* current = board->first_row; //nos paramos en la primera fila.
     while(current != NULL){  // mientras que no este vacia
         struct RowNode* prox = current->next;  //me guardo la proxima asi no pierdo el dato al liberarlo
         free(current);
@@ -241,8 +241,8 @@ void gameBoardDelete(GameBoard* board) {
     
     // TODO: Recorrer y liberar todos los PieceQueueNode.
     struct PieceQueueNode* curPiece = board->queue_head; 
-    while (curPiece != board->queue_tail){ //hasta no llegar al final de la lista sigo iterando, misma logica del anterior
-        struct PieceQueueNode* prox = curPiece->next; 
+    while (curPiece != board->queue_tail){ //hasta no llegar al final de la lista sigo iterando
+        struct PieceQueueNode* prox = curPiece->next; //me guardo la proxima asi no pierdo el dato al liberarlo
         free(curPiece);
         curPiece = prox;
     }
@@ -327,7 +327,7 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
             for (int k = 0; k<GRID_COLS; k++){
                 (nuevaRow->cells)[k] = 0; 
             }
-            nuevaRow->next = board->first_row; //la proxiao fila al la que agregue es la que estaba primera
+            nuevaRow->next = board->first_row; //la proxima fila al la que agregue es la que estaba primera
             board->first_row = nuevaRow; //ahora actualizo que la primera sea la nueva.
         }
         else if (hay0){ //si encontre un 0, me muevo en la lista
