@@ -93,7 +93,7 @@ char* strDuplicate(char* src) {
         caracter = *i;
     }
 
-    char* res = (char*)malloc(sizeof(char)*(cantCar + 1));
+    char* res = (char*)malloc(sizeof(char)*(cantCar + 1)); //la cantidad de caracteres más el 0
     
     char* j = res; //iterador para el nuevo arreglo
     i = src; //iterador para el arreglo viejo
@@ -142,7 +142,7 @@ int strCompare(char* s1, char* s2) {
     return 0;
 }
 
-int len(char* s){ //creamos una fucncion len para contar la cantidad de caracteres.
+int len(char* s){ //creamos una fucncion len para contar la cantidad de caracteres (sin incluir el '\0').
     int res = 0;
     int i = 0;
     while (s[i] != '\0') {
@@ -156,7 +156,7 @@ char* strConcatenate(char* src1, char* src2) {
     // TODO: Reservar un string nuevo con src1 seguido de src2, y liberar src1 y src2.
     //       Precondicion: src1 y src2 vienen de malloc y son punteros distintos.
 
-    char * res = (char*) malloc (sizeof(char) * (len(src1) + len(src2) + 1));
+    char * res = (char*) malloc (sizeof(char) * (len(src1) + len(src2) + 1)); //voy a querer reservar el espacio de la memoria de la cantidad de caracteres de la primera palabra + la de la segunda y le sumo 1 por el 0 al final
     char* j = res;
     char* i = src1;
     char caracter = *i;
@@ -228,21 +228,20 @@ void gameBoardDelete(GameBoard* board) {
     // TODO: Debe tolerar board == NULL.
     if (board == NULL){
         return; 
-    }
+    } 
 
     // TODO: Recorrer y liberar todos los RowNode con free().
-    struct RowNode* current = board->first_row; 
-    while(current->next != NULL){ 
-        struct RowNode* prox = current->next;
+    struct RowNode* current = board->first_row; //nos paramos en la prima fila.
+    while(current != NULL){  // mientras que no este vacia
+        struct RowNode* prox = current->next;  //me guardo la proxima asi no pierdo el dato al liberarlo
         free(current);
-        current = prox;
+        current = prox; //me muevo al siguiente
     }
-    free(current);
     board->first_row = NULL;
     
     // TODO: Recorrer y liberar todos los PieceQueueNode.
-    struct PieceQueueNode* curPiece = board->queue_head;
-    while (curPiece != board->queue_tail){ //hasta no llegar al final de la lista sigo iterando
+    struct PieceQueueNode* curPiece = board->queue_head; 
+    while (curPiece != board->queue_tail){ //hasta no llegar al final de la lista sigo iterando, misma logica del anterior
         struct PieceQueueNode* prox = curPiece->next; 
         free(curPiece);
         curPiece = prox;
@@ -252,7 +251,7 @@ void gameBoardDelete(GameBoard* board) {
     board->queue_tail = NULL;
 
     // TODO: Recorrer y liberar todos los ParticleNode.
-    struct ParticleNode* curPar = board->first_particle; 
+    struct ParticleNode* curPar = board->first_particle;  //misma logica del anterior
     while(curPar != NULL){ 
         struct ParticleNode* prox = curPar->next;
         free(curPar);
